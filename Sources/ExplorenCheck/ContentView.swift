@@ -5,6 +5,15 @@ struct ContentView: View {
     @Binding var picker: PickerModel?
     @State private var collapsed: Set<Int> = Set(
         UserDefaults.standard.array(forKey: ContentView.collapsedKey) as? [Int] ?? [])
+    /// Re-read once a minute so the elapsed figures stay true. Without this
+    /// they are computed once when a row first draws and then sit frozen,
+    /// which with the live stream carrying most updates means a charger that
+    /// just changed reads 0:00 indefinitely.
+    ///
+    /// Not a running clock: the value is still now minus when the change was
+    /// seen. A minute is simply the coarsest refresh that can keep an H:MM
+    /// display honest.
+    @State private var now = Date()
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -35,7 +44,7 @@ struct ContentView: View {
                 List {
                     ForEach(groupedByLocation) { group in
                         DisclosureGroup(isExpanded: expansion(group.id)) {
-                            ForEach(group.chargers) { ChargerRow(charger: $0) }
+                            ForEach(group.chargers) { ChargerRow(charger: $0, now: now) }
                         } label: {
                             HStack {
                                 Text(group.name)
@@ -55,6 +64,12 @@ struct ContentView: View {
         }
         .frame(minWidth: 320, minHeight: 240)
         .task { store.start() }
+        .task {
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(60))
+                now = Date()
+            }
+        }
         .sheet(item: $picker) { model in
             ChargerPicker(model: model) { store.updateWatchList($0) }
         }
@@ -175,6 +190,9 @@ struct ContentView: View {
 
 struct ChargerRow: View {
     let charger: ChargerStatus
+    /// Passed in rather than read from the clock here, so every row agrees on
+    /// what "now" is and the whole list updates together.
+    let now: Date
 
     var body: some View {
         HStack(spacing: 12) {
@@ -205,8 +223,10 @@ struct ChargerRow: View {
             VStack(alignment: .trailing, spacing: 1) {
                 Text(charger.statusLabel)
                     .foregroundStyle(colour)
-                if let since = charger.since {
-                    Text(clockDuration(since: since))
+                // Nothing below a minute: "0:00" is noise, and it is what a
+                // freshly observed change reads as for its first minute.
+                if let since = charger.since, now.timeIntervalSince(since) >= 60 {
+                    Text(clockDuration(since: since, now: now))
                         .font(.system(.caption, design: .monospaced))
                         .foregroundStyle(.tertiary)
                 }
