@@ -1,0 +1,21 @@
+# Credentials
+.env
+
+# Proxyman captures (contain session tokens)
+*.proxymanlogv2
+
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+
+# Swift
+.build/
+build/
+*.xcuserstate
+
+# Release signing config and artefacts
+packaging/.env
+packaging/dist/

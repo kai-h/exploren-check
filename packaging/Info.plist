@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Shared by build.sh (ad-hoc dev builds) and packaging/release.sh
+     (Developer ID, notarised). __VERSION__ and __BUILD__ are substituted at
+     build time. Kept in one file so the two channels cannot drift apart in
+     bundle identifier, which is what notification permission and launch at
+     login are both keyed to. -->
+<plist version="1.0">
+<dict>
+    <key>CFBundleName</key>                  <string>ExplorenCheck</string>
+    <key>CFBundleDisplayName</key>           <string>Chargers</string>
+    <key>CFBundleIdentifier</key>            <string>au.com.automatica.explorencheck</string>
+    <key>CFBundleExecutable</key>            <string>ExplorenCheck</string>
+    <key>CFBundleIconFile</key>              <string>AppIcon</string>
+    <key>CFBundlePackageType</key>           <string>APPL</string>
+    <key>CFBundleShortVersionString</key>    <string>__VERSION__</string>
+    <key>CFBundleVersion</key>               <string>__BUILD__</string>
+    <key>LSMinimumSystemVersion</key>        <string>15.0</string>
+    <key>NSHumanReadableCopyright</key>      <string>MIT licensed</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>Finds charging stations near you when you tap Near Me.</string>
+</dict>
+</plist>
