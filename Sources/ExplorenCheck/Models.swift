@@ -77,6 +77,11 @@ struct EVSE: Decodable {
     /// No tariff attached means the charger is free to use. Tariffs vary
     /// between chargers at one location, so this is per EVSE.
     let tariffId: String?
+    /// Ampeco's own read on whether the EVSE can be used, distinct from
+    /// `status`: seen false while `status` still read "available" for a
+    /// pair of chargers whose site-level connection had dropped out, which
+    /// the driver-facing Exploren app in turn showed as "offline".
+    let isAvailable: Bool?
 }
 
 /// What a charger costs, resolved from its tariff. `nil` pricing means free.
@@ -132,6 +137,9 @@ struct ChargerStatus: Identifiable, Equatable, Sendable {
     var socPercent: Int?
     /// nil means free to use.
     let pricing: Pricing?
+    /// The network's own availability read for this EVSE, when the API
+    /// supplied one. See `EVSE.isAvailable`.
+    let networkAvailable: Bool?
 
     /// When this charger was seen to change into its current status. Nil
     /// until we actually witness a change, since finding it already charging
@@ -141,6 +149,12 @@ struct ChargerStatus: Identifiable, Equatable, Sendable {
     var id: String { evseId }
 
     var isAvailable: Bool { status == Self.available }
+
+    /// `status` says available but the network disagrees, as happens when a
+    /// charger has dropped off Ampeco's backend without anyone marking it
+    /// down. The Exploren app labels this "offline", though plugging in or
+    /// tapping an RFID card can sometimes still start a session regardless.
+    var isDisputed: Bool { isAvailable && networkAvailable == false }
 
     var statusLabel: String { ExplorenCheck.statusLabel(status) }
 

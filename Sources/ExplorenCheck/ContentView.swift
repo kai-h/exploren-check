@@ -196,8 +196,7 @@ struct ChargerRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            Circle()
-                .fill(colour)
+            indicator
                 .frame(width: 10, height: 10)
 
             VStack(alignment: .leading, spacing: 1) {
@@ -248,6 +247,27 @@ struct ChargerRow: View {
             Text("Free")
                 .font(.caption)
                 .foregroundStyle(.green)
+        }
+    }
+
+    /// A disputed charger swaps its dot for a warning triangle, and a truly
+    /// broken one for a stop-sign octagon, so the shape itself carries the
+    /// severity rather than relying on colour alone.
+    @ViewBuilder
+    private var indicator: some View {
+        if charger.isDisputed {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundStyle(.yellow)
+                .help("""
+                    Charger is offline. It may be possible to start a \
+                    session manually by plugging in or using RFID.
+                    """)
+        } else if colour == .red {
+            Image(systemName: "octagon.fill")
+                .foregroundStyle(.red)
+        } else {
+            Circle()
+                .fill(colour)
         }
     }
 

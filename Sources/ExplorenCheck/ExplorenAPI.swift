@@ -174,7 +174,8 @@ struct ExplorenAPI: Sendable {
                     status: ($0.status ?? "unknown").lowercased(),
                     maxPowerW: $0.maxPower,
                     socPercent: $0.socPercent,
-                    pricing: pricing($0.tariffId)
+                    pricing: pricing($0.tariffId),
+                    networkAvailable: $0.isAvailable
                 )
             }
         }
