@@ -272,12 +272,15 @@ struct ChargerRow: View {
     }
 
     private var colour: Color {
+        // Neither a confirmed fault nor confirmed free, so it gets neither
+        // red nor green: the triangle already carries the alert.
+        guard !charger.isDisputed else { return .secondary }
         switch charger.status {
-        case "available": .green
+        case "available": return .green
         case "charging", "preparing", "finishing", "reserved",
-             "suspendedev", "suspendedevse": .orange
-        case "faulted", "out of order", "unavailable": .red
-        default: .secondary
+             "suspendedev", "suspendedevse": return .orange
+        case "faulted", "out of order", "unavailable": return .red
+        default: return .secondary
         }
     }
 }

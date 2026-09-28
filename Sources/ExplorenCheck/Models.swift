@@ -156,7 +156,10 @@ struct ChargerStatus: Identifiable, Equatable, Sendable {
     /// tapping an RFID card can sometimes still start a session regardless.
     var isDisputed: Bool { isAvailable && networkAvailable == false }
 
-    var statusLabel: String { ExplorenCheck.statusLabel(status) }
+    /// "Available" would be actively misleading paired with the warning
+    /// triangle, so a disputed charger borrows the term the Exploren app
+    /// itself uses instead.
+    var statusLabel: String { isDisputed ? "Offline" : ExplorenCheck.statusLabel(status) }
 
     var powerLabel: String? { ExplorenCheck.powerLabel(watts: maxPowerW) }
 
